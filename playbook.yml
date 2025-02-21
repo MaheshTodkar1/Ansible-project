@@ -1,0 +1,29 @@
+---
+
+- hosts: localhost
+  connection: local
+
+  vars_files:
+    - aws_credentials.yml    #This file contain access key and secret access key
+
+
+  tasks:
+    - name: start an instance with a public IP address
+      amazon.aws.ec2_instance:
+        name: "{{ item.name }}"
+        key_name: "AnsibleKP"
+        instance_type: t2.micro
+        security_group: default
+        region: ap-south-1
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        count: "{{ item.count }}"
+        network_interfaces:
+          - assign_public_ip: true
+        image_id: "{{ item.ami }}"
+        tags:
+          Environment: Testing
+
+      loop:
+        - {name: "Ubuntu-Instance", ami: "ami-00bb6a80f01f03502", count: 2}
+        - {name: "AmazonLinux-Instance", ami: "ami-0ddfba243cbee3768", count: 1}
